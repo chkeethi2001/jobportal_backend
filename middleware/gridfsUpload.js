@@ -5,7 +5,7 @@ import crypto from "crypto";
 import path from "path";
 import dotenv from "dotenv";
 dotenv.config();
-console.log("MONGODB_URI =", process.env.MONGODB_URI);
+console.log("MONGO_URI =", process.env.MONGO_URI);
 
 const storage = new GridFsStorage({
   url: process.env.MONGODB_URI,
