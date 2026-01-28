@@ -13,14 +13,14 @@ import {
 
 import { protect } from '../middleware/authMiddleware.js';
 import authorizeRoles from '../middleware/roleMiddleware.js';
-
+import { updateApplicationStatus } from '../controllers/applicationController.js';
 const jobrouter = express.Router();
 
-// -------------------- PUBLIC ROUTES -------------------- //
-jobrouter.get('/', getJobs);                // Get all jobs
-jobrouter.get('/:id', getJobById);          // Get job by ID
+//  PUBLIC ROUTES  //
+jobrouter.get('/', getJobs);                 
+jobrouter.get('/:id', getJobById);           
 
-// -------------------- JOBSEEKER / ADMIN -------------------- //
+// JOBSEEKER / ADMIN //
 jobrouter.post(
   '/:id/apply',
   protect,
@@ -28,13 +28,15 @@ jobrouter.post(
   applyToJob
 );
 
-// -------------------- RECRUITER / ADMIN -------------------- //
+//  RECRUITER / ADMIN  //
 jobrouter.get(
   '/:id/applicants',
   protect,
   authorizeRoles('recruiter', 'admin'),
   getJobApplicants
 );
+
+jobrouter.patch('/applications/:appId/status', protect, authorizeRoles('recruiter', 'admin'),updateApplicationStatus);
 
 jobrouter.post(
   '/',
@@ -53,7 +55,7 @@ jobrouter.put(
 jobrouter.delete(
   '/:id',
   protect,
-  authorizeRoles('recruiter', 'admin'),
+  authorizeRoles('recruiter'),
   deleteJob
 );
 

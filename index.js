@@ -1,4 +1,3 @@
-// index.js
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -34,20 +33,17 @@ const allowedOrigins = process.env.FRONTEND_URL
   : ["http://localhost:5173", "http://localhost:5174"];
 
 // ✅ CORS setup
-app.use(
-  cors()
+app.use(cors());
 
-);
-
-// ✅ Body parsers
+// ✅ Body parsers - MUST be placed before routes!
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ✅ API Routes
+app.use("/api/jobs", jobRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
-app.use("/api/jobs", jobRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/applications", applicationRoutes);

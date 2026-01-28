@@ -10,7 +10,7 @@ const jobSchema = new mongoose.Schema(
       enum: ["full-time", "part-time", "remote", "contract", "internship"],
       required: true,
     },
-    experience: { type: Number, required: true }, // యూజర్ అవసరమైతే చేర్చండి
+    experience: { type: Number, required: true }, 
     postedBy: {
       type: String,
       ref: "User",

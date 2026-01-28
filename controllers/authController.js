@@ -1,19 +1,20 @@
 // controllers/authController.js
 import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt"
-import User from "../models/User.js"
+import bcrypt from "bcryptjs"; 
+import User from "../models/User.js";
 
 // Register User
-export const registerUser = async (req, res) => {
-  try {
-    const { name, email, password, role } = req.body;
 
-    if (!name || !email || !password || !role) {
+export const registerUser = async (req, res) => {
+  console.log("Incoming request body:", req.body);
+  try {
+    const { firstName, lastName, email, password, role } = req.body;
+
+    if (!firstName || !lastName || !email || !password || !role) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    const existingUser = await User.findOne({ email:email });
-    console.log(existingUser)
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
     }
@@ -21,19 +22,23 @@ export const registerUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
-      name,
+      firstname:firstName,
+      lastname: lastName,
       email,
       password: hashedPassword,
-      role, // ✅ save role
+      role,
+      mustChangePassword: role === "superadmin", // ✅ only superadmin must change password
     });
 
     res.status(201).json({
       message: "Registration successful",
       user: {
         id: user._id,
-        name: user.name,
+        firstname: user.firstname,
+        lastname: user.lastname,
         email: user.email,
         role: user.role,
+        mustChangePassword: user.mustChangePassword,
       },
     });
   } catch (error) {
@@ -43,26 +48,27 @@ export const registerUser = async (req, res) => {
 };
 
 // Login User
+
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ message: "Email and password required" });
+      return res.status(400).json({ message: "Email and password are required" });
     }
 
-    const user = await User.findOne({email:email})
+    const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    const isMatch = await bcrypt.compare(password,user.password)
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
     const token = jwt.sign(
-      { email:user.email , role: user.role },
+      { id: user._id, email: user.email, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
@@ -70,7 +76,8 @@ export const loginUser = async (req, res) => {
     res.status(200).json({
       message: "Login successful",
       token,
-      role: user.role
+      role: user.role,
+      mustChangePassword: user.mustChangePassword, 
     });
   } catch (error) {
     console.error("Error during login:", error);
@@ -78,19 +85,35 @@ export const loginUser = async (req, res) => {
   }
 };
 
-// Get Profile
-export const getProfile = async (req, res) => {
+// Change Password
+
+export const changePassword = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select("-password");
+    const { oldPassword, newPassword } = req.body;
+
+    const user = await User.findById(req.user.id); // req.user comes from protect middleware
     if (!user) return res.status(404).json({ message: "User not found" });
-    res.json(user);
+
+    // Verify old password
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Old password is incorrect" });
+    }
+
+    // Update password
+    user.password = await bcrypt.hash(newPassword, 10);
+    user.mustChangePassword = false; // ✅ reset flag after update
+    await user.save();
+
+    res.json({ success: true, message: "Password updated successfully" });
   } catch (error) {
-    console.error("Error fetching profile:", error);
+    console.error("Error in changePassword:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
 
 // Logout
+
 export const logoutUser = (req, res) => {
   res.json({ message: "Logout successful" });
 };

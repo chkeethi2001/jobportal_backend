@@ -3,7 +3,7 @@ import ChatMessage from "../models/ChatMessage.js";
 
 const router = express.Router();
 
-// 📌 Send a message
+// Send a message
 router.post("/", async (req, res) => {
   try {
     const { applicationId, senderId, message } = req.body;

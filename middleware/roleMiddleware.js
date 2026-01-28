@@ -5,25 +5,22 @@ const authorizeRoles = (...roles) => {
     try {
       // req.user is set by protect middleware
       if (!req.user) {
-        return res.status(401).json({ message: 'Not authorized, no user found' });
-
+        return res
+          .status(401)
+          .json({ message: "Not authorized, no user found" });
       }
 
       if (!roles.includes(req.user.role)) {
         return res.status(403).json({
-          message: `Rile ${req.user.role} is not authorized to access this resource`,
-        })
-          
-        
+          message: `Role ${req.user.role} is not authorized to access this resource`,
+        });
       }
 
       next();
     } catch (err) {
       return res.status(500).json({
-        message: 'Serever error during role authorized check',
-        
-
-      })
+        message: "Server error during role authorization check",
+      });
     }
   };
 };

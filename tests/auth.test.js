@@ -33,19 +33,19 @@ describe('POST /api/auth/register', () => {
   it('should register a user with valid email', async () => {
     const res = await request(app)
       .post('/api/auth/register')
-      .send({ name: 'Ramki', email: 'ramkimern@gmail.com', password: 'password' });
+      .send({ name: 'Test', email: 'test123@gmail.com', password: 'password' });
 
-    console.log(res.body);  // For debugging response structure
+    console.log(res.body);  
 
     expect(res.statusCode).toBe(201);
     expect(res.body.success).toBe(true);
-    expect(res.body.user.email).toBe('ramkimern@gmail.com');
+    expect(res.body.user.email).toBe('test123@gmail.com');
   });
 
   it('should fail for invalid email', async () => {
     const res = await request(app)
       .post('/api/auth/register')
-      .send({ name: 'Ramki', email: 'ramkiabc.com', password: 'password' });
+      .send({ name: 'Test', email: 'test123@.com', password: 'password' });
 
     expect(res.statusCode).toBe(400);
     expect(res.body.success).toBe(false);

@@ -1,11 +1,11 @@
 // controllers/jobController.js
+import Application from '../models/Application.js';
 import Job from '../models/Job.js';
 
 
-// @desc    Create a new job
-// @route   POST /api/jobs
-// @access  Private (Recruiter/Admin)
+
 export const createJob = async (req, res) => {
+  console.log('User:', req.user);
   try {
     const { title, description, location, type, experience } = req.body;
 
@@ -37,9 +37,6 @@ export const createJob = async (req, res) => {
   }
 };
 
-// @desc    Get all jobs
-// @route   GET /api/jobs
-// @access  Public
 export const getJobs = async (req, res) => {
   try {
     const jobs = await Job.find();
@@ -54,9 +51,7 @@ export const getJobs = async (req, res) => {
   }
 };
 
-// @desc    Get single job by ID
-// @route   GET /api/jobs/:id
-// @access  Public
+
 export const getJobById = async (req, res) => {
   try {
     const job = await Job.findById(req.params.id);
@@ -74,9 +69,7 @@ export const getJobById = async (req, res) => {
   }
 };
 
-// @desc    Update a job
-// @route   PUT /api/jobs/:id
-// @access  Private (Recruiter/Admin)
+
 export const updateJob = async (req, res) => {
   try {
     const job = await Job.findById(req.params.id);
@@ -100,9 +93,7 @@ export const updateJob = async (req, res) => {
   }
 };
 
-// @desc    Delete a job
-// @route   DELETE /api/jobs/:id
-// @access  Private (Recruiter/Admin)
+
 export const deleteJob = async (req, res) => {
   try {
     const job = await Job.findById(req.params.id);
@@ -122,9 +113,7 @@ export const deleteJob = async (req, res) => {
   }
 };
 
-// @desc    Apply to a job
-// @route   POST /api/jobs/:id/apply
-// @access  Private (Jobseeker/Admin)
+
 export const applyToJob = async (req, res) => {
   try {
     const job = await Job.findById(req.params.id);
@@ -153,29 +142,33 @@ export const applyToJob = async (req, res) => {
   }
 };
 
-// @desc    Get applicants for a job
-// @route   GET /api/jobs/:id/applicants
-// @access  Private (Recruiter/Admin)
+
 export const getJobApplicants = async (req, res) => {
   try {
-    const job = await Job.findById(req.params.id);
+    const { id: jobId } = req.params;
+
+    const job = await Job.findById(jobId);
     if (!job) {
-      return res.status(404).json({ success: false, message: 'Job not found' });
+      return res.status(404).json({ success: false, message: "Job not found" });
     }
+
+    // Check authorization: recruiter who posted this job or admin
 
     if (job.postedBy.toString() !== req.user.userId && req.user.role !== 'admin') {
-      return res.status(401).json({ success: false, message: 'Not authorized' });
+      return res.status(401).json({ success: false, message: "Not authorized to view applications" });
     }
 
-    const applications = await Application.find({ job: job._id }).populate('applicant', 'name email');
+    const applications = await Application.find({ job: jobId })
+      .populate("applicant", "name email")  
+      .populate("job", "title company");     
+
     return res.status(200).json({
       success: true,
-      message: 'Applicants fetched successfully',
-      data: applications,
+      data: applications
     });
   } catch (error) {
     console.error("Error fetching applicants:", error);
-    return res.status(500).json({ success: false, message: 'Server error fetching applicants' });
+    return res.status(500).json({ success: false, message: "Server error fetching applicants" });
   }
 };
 
@@ -183,11 +176,11 @@ export const getJobApplicants = async (req, res) => {
 
 export const getUserApplications = async (req, res) => {
   try {
-    // Example dummy response
+  
     res.json({
       message: "Fetched user applications successfully",
       userId: req.user ? req.user._id : null,
-      applications: [], // later you can fill with DB results
+      applications: [], 
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -196,7 +189,7 @@ export const getUserApplications = async (req, res) => {
 
 
 
-// --- Saved Jobs ---
+//  Saved Jobs 
 import User from "../models/User.js";
 
 export const saveJob = async (req, res) => {

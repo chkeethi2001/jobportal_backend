@@ -1,10 +1,13 @@
 // backend/routes/authRoutes.js
 import express from 'express';
-import { registerUser, loginUser, getProfile, logoutUser } from '../controllers/authController.js';
+import { changePassword, registerUser, loginUser, logoutUser } from '../controllers/authController.js';
 import { protect } from '../middleware/authMiddleware.js';
 import validateRequest from '../middleware/validateRequest.js';
-import { registerSchema, loginSchema } from '../utils/validationSchema.js';
+import { loginSchema } from '../utils/validationSchema.js';
+import { registerSchema } from '../schemas/validationSchema.js';
 import multer from 'multer';
+import { getProfile } from '../controllers/userController.js';
+
 const router = express.Router();
 
 // Register route with validation
@@ -18,5 +21,7 @@ router.get('/profile', protect, getProfile);
 
 // Logout route (optional)
 router.post('/logout', protect, logoutUser);
+router.post('/change-password', protect, changePassword);
+
 
 export default router;

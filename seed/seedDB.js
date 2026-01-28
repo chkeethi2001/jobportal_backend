@@ -53,5 +53,14 @@ const run = async () => {
     await importData();
   }
 };
+const superAdmin = await User.create({
+  firstname: "Super",
+  lastname: "Admin",
+  email: "superadmin@gmail.com",
+  password: hashedPassword,
+  role: "superadmin",
+  mustChangePassword: true, // ✅ force password change on first login
+});
+
 
 run();

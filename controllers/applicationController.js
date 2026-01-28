@@ -76,3 +76,27 @@ export const downloadResume = async (req, res) => {
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
+// Update application status (for recruiter or admin)
+export const updateApplicationStatus = async (req, res) => {
+  try {
+    const { appId } = req.params;
+    const { status } = req.body;
+
+    if (!status) {
+      return res.status(400).json({ success: false, message: "Status is required" });
+    }
+
+    const application = await Application.findById(appId);
+    if (!application) {
+      return res.status(404).json({ success: false, message: "Application not found" });
+    }
+
+    application.status = status;
+    await application.save();
+
+    return res.status(200).json({ success: true, message: "Application status updated", application });
+  } catch (err) {
+    console.error("updateApplicationStatus error:", err);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
