@@ -7,7 +7,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const storage = new GridFsStorage({
-  url: process.env.MONGO_URI,
+  url: process.env.MONGODB_URI,
   file: (req, file) => {
     return new Promise((resolve, reject) => {
       const match = ["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
