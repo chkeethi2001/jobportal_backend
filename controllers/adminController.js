@@ -1,7 +1,7 @@
 import User from "../models/User.js";
 import Job from "../models/Job.js";
 import Application from "../models/Application.js";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 /* ---------------------------------- USERS ---------------------------------- */
 
