@@ -8,7 +8,7 @@ dotenv.config();
 console.log("MONGO_URI =", process.env.MONGO_URI);
 
 const storage = new GridFsStorage({
-  url: process.env.MONGODB_URI,
+  url: process.env.MONGO_URI,
   file: (req, file) => {
     return new Promise((resolve, reject) => {
       const match = ["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
